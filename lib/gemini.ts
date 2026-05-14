@@ -27,8 +27,8 @@ export const parseNaturalLanguage = async (input: string) => {
             type: Type.OBJECT,
             properties: {
               title: { type: Type.STRING },
-              date: { type: Type.STRING, description: "YYYY-MM-DD formato" },
-              time: { type: Type.STRING, description: "HH:mm format" },
+              date: { type: Type.STRING, description: "날짜 (YYYY-MM-DD 형식)" },
+              time: { type: Type.STRING, description: "시간 (HH:mm 형식)" },
               priority: { type: Type.STRING, enum: ["high", "medium", "low"] },
               description: { type: Type.STRING }
             },
@@ -38,8 +38,18 @@ export const parseNaturalLanguage = async (input: string) => {
       }
     });
 
-    const result = JSON.parse(response.text || "[]");
-    return result;
+    const text = response.text;
+    if (!text) return [];
+    
+    // AI 응답 정화 (마크다운 코드 블록 제거 및 유효성 검사)
+    let jsonContent = text.trim();
+    if (jsonContent.includes("```")) {
+      const match = jsonContent.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (match) jsonContent = match[1];
+    }
+    
+    const result = JSON.parse(jsonContent);
+    return Array.isArray(result) ? result : [result];
   } catch (error) {
     console.error("AI Parsing Error:", error);
     return [];

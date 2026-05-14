@@ -23,19 +23,31 @@ export default function Sidebar({ onEventsGenerated, upcomingEvents }: SidebarPr
     setIsProcessing(true);
     try {
       const parsed = await parseNaturalLanguage(input);
-      const newEvents: CalendarEvent[] = parsed.map((p: any) => ({
-        id: uuidv4(),
-        title: p.title,
-        start: `${p.date}T${p.time}:00`,
-        end: `${p.date}T${p.time}:00`, // Assume 1hr or just point for now
-        priority: p.priority,
-        description: p.description || '',
-        isAiGenerated: true
-      }));
-      onEventsGenerated(newEvents);
+      const newEvents: CalendarEvent[] = parsed.map((p: any) => {
+        const dateStr = p.date || format(new Date(), "yyyy-MM-dd");
+        const timeStr = p.time || "09:00";
+        const isoStart = `${dateStr}T${timeStr}:00`;
+        
+        return {
+          id: uuidv4(),
+          title: p.title || '새 일정',
+          start: isoStart,
+          end: isoStart,
+          priority: p.priority || 'medium',
+          description: p.description || '',
+          isAiGenerated: true
+        };
+      });
+      
+      console.log("AI Parsed Events:", newEvents);
+      
+      // Call the callback to notify parent
+      await onEventsGenerated(newEvents);
+      
       setInput('');
     } catch (error) {
-      console.error(error);
+      console.error("AI Submission Error:", error);
+      alert("일정을 분석하는 중 오류가 발생했습니다. 다시 시도해주세요.");
     } finally {
       setIsProcessing(false);
     }
@@ -120,6 +132,9 @@ export default function Sidebar({ onEventsGenerated, upcomingEvents }: SidebarPr
                     <Clock size={10} />
                     {format(parseISO(event.start), 'HH:mm')}
                   </div>
+                </div>
+                <div className="text-[10px] text-slate-400 font-medium">
+                  {format(parseISO(event.start), 'MM월 dd일')}
                 </div>
               </div>
             ))

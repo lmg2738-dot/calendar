@@ -14,6 +14,7 @@ import {
   eachDayOfInterval,
   parseISO
 } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Plus, BrainCircuit } from 'lucide-react';
 import { CalendarEvent } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
@@ -55,7 +56,7 @@ export default function Calendar({ events, onSelectDate, onSelectEvent }: Calend
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-6 bg-white">
         <h2 className="text-2xl font-display font-bold text-slate-900">
-          {format(currentMonth, 'MMMM yyyy')}
+          {format(currentMonth, 'yyyy년 MMMM', { locale: ko })}
         </h2>
         <div className="flex items-center gap-4">
           <button 

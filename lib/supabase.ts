@@ -3,10 +3,19 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-// Only initialize if we have the credentials to avoid crashing during build/prerender
-export const supabase = (supabaseUrl && supabaseAnonKey) 
+// Check if credentials are placeholders or empty
+const isValidConfig = supabaseUrl && 
+                    supabaseAnonKey && 
+                    !supabaseUrl.includes('your-project-id') &&
+                    !supabaseAnonKey.includes('your-anon-key');
+
+export const supabase = isValidConfig 
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
+
+if (!supabase) {
+  console.info('Supabase is not configured yet. Using localStorage as fallback.');
+}
 
 export interface CalendarEvent {
   id: string;
@@ -27,17 +36,29 @@ export const getEvents = async (): Promise<CalendarEvent[]> => {
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('*');
-      if (error) throw error;
+        .select('*')
+        .order('start', { ascending: true });
+        
+      if (error) {
+        console.error('Supabase Error (getEvents):', error.message);
+        throw error;
+      }
+      
+      console.log('Successfully fetched events from Supabase:', data?.length || 0);
       
       // DB(snake_case) -> App(camelCase) 변환
       return (data || []).map(item => ({
-        ...item,
+        id: item.id,
+        title: item.title,
+        start: item.start,
+        end: item.end,
+        priority: item.priority,
+        description: item.description,
         isAiGenerated: item.is_ai_generated,
         userId: item.user_id
       }));
     } catch (err) {
-      console.warn('Supabase fetch failed, falling back to localStorage', err);
+      console.warn('Supabase fetch failed, falling back to localStorage');
     }
   }
   
@@ -48,7 +69,6 @@ export const getEvents = async (): Promise<CalendarEvent[]> => {
 export const saveEvent = async (event: CalendarEvent): Promise<CalendarEvent> => {
   if (supabase) {
     try {
-      // App(camelCase) -> DB(snake_case) 변환
       const dbData = {
         id: event.id,
         title: event.title,
@@ -60,20 +80,36 @@ export const saveEvent = async (event: CalendarEvent): Promise<CalendarEvent> =>
         user_id: event.userId
       };
 
+      console.log('Attemping to save to Supabase:', dbData);
+
       const { data, error } = await supabase
         .from('events')
         .upsert(dbData)
         .select()
         .single();
-      if (error) throw error;
+        
+      if (error) {
+        console.error('Supabase Save Error (saveEvent):', error.message);
+        if (error.message.includes('is_ai_generated')) {
+          console.error('CRITICAL: is_ai_generated 컬럼이 테이블에 없습니다. SQL Editor에서 수정 쿼리를 실행하세요.');
+        }
+        throw error;
+      }
+      
+      console.log('Successfully saved/updated event in Supabase:', data.id);
       
       return {
-        ...data,
+        id: data.id,
+        title: data.title,
+        start: data.start,
+        end: data.end,
+        priority: data.priority,
+        description: data.description,
         isAiGenerated: data.is_ai_generated,
         userId: data.user_id
       };
     } catch (err) {
-      console.warn('Supabase save failed, falling back to localStorage', err);
+      console.warn('Supabase save failed, falling back to localStorage');
     }
   }
 

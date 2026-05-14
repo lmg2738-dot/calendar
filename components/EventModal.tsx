@@ -27,7 +27,14 @@ export default function EventModal({ isOpen, onClose, event, onSave, onDelete }:
   useEffect(() => {
     const updateForm = () => {
       if (event) {
-        setFormData(event);
+        setFormData({
+          ...event,
+          title: event.title || '',
+          description: event.description || '',
+          start: event.start || format(new Date(), "yyyy-MM-dd'T'09:00"),
+          priority: event.priority || 'medium',
+          isAiGenerated: event.isAiGenerated || false
+        });
       } else {
         setFormData({
           title: '',
@@ -87,7 +94,7 @@ export default function EventModal({ isOpen, onClose, event, onSave, onDelete }:
               <input
                 type="text"
                 required
-                value={formData.title}
+                value={formData.title || ''}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="어떤 일정이 있나요?"
                 className="w-full px-5 py-3 rounded-2xl bg-slate-100 border-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:outline-none transition-all text-slate-800"
@@ -112,7 +119,7 @@ export default function EventModal({ isOpen, onClose, event, onSave, onDelete }:
                   <Flag size={10} /> 우선순위
                 </label>
                 <select
-                  value={formData.priority}
+                  value={formData.priority || 'medium'}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
                   className="w-full px-5 py-3 rounded-2xl bg-slate-100 border-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:outline-none transition-all text-sm font-medium text-slate-800 appearance-none"
                 >
@@ -128,7 +135,7 @@ export default function EventModal({ isOpen, onClose, event, onSave, onDelete }:
                 <AlignLeft size={10} /> 상세 내용
               </label>
               <textarea
-                value={formData.description}
+                value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="추가 메모를 입력하세요."
                 className="w-full h-28 px-5 py-3 rounded-2xl bg-slate-100 border-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:outline-none resize-none transition-all text-sm text-slate-800"

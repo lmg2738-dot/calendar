@@ -5,7 +5,7 @@ import Sidebar from '@/components/Sidebar';
 import Calendar from '@/components/Calendar';
 import EventModal from '@/components/EventModal';
 import { CalendarEvent, getEvents, saveEvent, deleteEvent } from '@/lib/supabase';
-import { parseISO, isAfter, startOfToday } from 'date-fns';
+import { parseISO, isAfter, startOfToday, format } from 'date-fns';
 
 export default function PlannerPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -14,10 +14,15 @@ export default function PlannerPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const loadEvents = async () => {
-    setIsLoading(true);
-    const data = await getEvents();
-    setEvents(data);
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      const data = await getEvents();
+      setEvents([...data]);
+    } catch (error) {
+      console.error("Failed to load events:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -25,10 +30,14 @@ export default function PlannerPage() {
   }, []);
 
   const handleEventsGenerated = async (newEvents: CalendarEvent[]) => {
-    for (const event of newEvents) {
-      await saveEvent(event);
+    setIsLoading(true);
+    try {
+      await Promise.all(newEvents.map(event => saveEvent(event)));
+    } catch (error) {
+      console.error("Error saving generated events:", error);
+    } finally {
+      await loadEvents();
     }
-    await loadEvents();
   };
 
   const handleSaveEvent = async (event: CalendarEvent) => {
@@ -42,9 +51,11 @@ export default function PlannerPage() {
   };
 
   const handleDateClick = (date: Date) => {
+    // 로컬 시간 문자열로 변환 (YYYY-MM-DDTHH:mm)
+    const localISO = format(date, "yyyy-MM-dd'T'09:00");
     setSelectedEvent({
-      start: date.toISOString(),
-      end: date.toISOString(),
+      start: localISO,
+      end: localISO,
     });
     setIsModalOpen(true);
   };
@@ -84,7 +95,10 @@ export default function PlannerPage() {
 
       {isLoading && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/50 backdrop-blur-sm">
-          <div className="w-12 h-12 border-4 border-stone-200 border-t-stone-900 rounded-full animate-spin" />
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
+            <p className="text-sm font-bold text-slate-600">일정 정보를 불러오는 중...</p>
+          </div>
         </div>
       )}
     </div>
