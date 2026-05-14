@@ -47,20 +47,20 @@ export default function Sidebar({ onEventsGenerated, upcomingEvents }: SidebarPr
         <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white shadow-sm">
           <BrainCircuit size={20} />
         </div>
-        <h1 className="text-lg font-display font-bold text-slate-900">AI Smart Planner</h1>
+        <h1 className="text-lg font-display font-bold text-slate-900">AI 스마트 플래너</h1>
       </div>
 
       {/* AI Input */}
       <div className="space-y-4">
         <label className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] flex items-center gap-2">
           <Sparkles size={12} className="text-blue-500" />
-          AI Quick Add
+          AI 빠른 일정 추가
         </label>
         <form onSubmit={handleSubmit} className="relative group">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="e.g., 'Team meeting tomorrow 3pm'..."
+            placeholder="예: '내일 오후 3시 팀 미팅', '이번주 토요일 오전 10시 등산'..."
             className="w-full h-32 p-4 pt-4 pb-12 rounded-xl bg-slate-100 border-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 text-sm shadow-inner"
           />
           <button
@@ -81,17 +81,17 @@ export default function Sidebar({ onEventsGenerated, upcomingEvents }: SidebarPr
       <div className="space-y-4">
         <label className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] flex items-center gap-2">
           <Filter size={12} />
-          Filter Priority
+          우선순위 필터
         </label>
         <div className="flex flex-wrap gap-2">
           <button className="px-3 py-1.5 rounded-lg text-xs font-semibold border-l-4 border-red-500 bg-red-50 text-red-800 hover:bg-red-100 transition-colors">
-            High
+            높음
           </button>
           <button className="px-3 py-1.5 rounded-lg text-xs font-semibold border-l-4 border-amber-500 bg-amber-50 text-amber-800 hover:bg-amber-100 transition-colors">
-            Med
+            보통
           </button>
           <button className="px-3 py-1.5 rounded-lg text-xs font-semibold border-l-4 border-blue-500 bg-blue-50 text-blue-800 hover:bg-blue-100 transition-colors">
-            Low
+            낮음
           </button>
         </div>
       </div>
@@ -100,11 +100,11 @@ export default function Sidebar({ onEventsGenerated, upcomingEvents }: SidebarPr
       <div className="flex-1 flex flex-col min-h-0">
         <label className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] flex items-center gap-2 mb-4">
           <CalendarIcon size={12} />
-          Today's Summary
+          오늘의 일정 요약
         </label>
         <div className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-thin">
           {upcomingEvents.length === 0 ? (
-            <p className="text-sm text-slate-400 italic py-4">No upcoming events</p>
+            <p className="text-sm text-slate-400 italic py-4">예정된 일정이 없습니다</p>
           ) : (
             upcomingEvents.map((event) => (
               <div key={event.id} className="flex items-center gap-4 p-3 rounded-xl border border-slate-50 hover:border-slate-200 hover:bg-slate-50/50 transition-all group">
@@ -129,8 +129,8 @@ export default function Sidebar({ onEventsGenerated, upcomingEvents }: SidebarPr
       
       <div className="mt-auto p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
         <p className="text-[10px] leading-relaxed text-emerald-800">
-          <strong className="block mb-1">💡 Supabase Tip:</strong>
-          Store 'events' table with columns: title, start, priority. Use Realtime for instant updates.
+          <strong className="block mb-1">💡 Supabase 연동 팁:</strong>
+          'events' 테이블에 title, start, priority 컬럼을 생성하세요. Realtime 기능을 켜면 실시간 동기화가 가능합니다.
         </p>
       </div>
     </div>

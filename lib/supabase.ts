@@ -29,7 +29,13 @@ export const getEvents = async (): Promise<CalendarEvent[]> => {
         .from('events')
         .select('*');
       if (error) throw error;
-      return data || [];
+      
+      // DB(snake_case) -> App(camelCase) 변환
+      return (data || []).map(item => ({
+        ...item,
+        isAiGenerated: item.is_ai_generated,
+        userId: item.user_id
+      }));
     } catch (err) {
       console.warn('Supabase fetch failed, falling back to localStorage', err);
     }
@@ -42,13 +48,30 @@ export const getEvents = async (): Promise<CalendarEvent[]> => {
 export const saveEvent = async (event: CalendarEvent): Promise<CalendarEvent> => {
   if (supabase) {
     try {
+      // App(camelCase) -> DB(snake_case) 변환
+      const dbData = {
+        id: event.id,
+        title: event.title,
+        start: event.start,
+        end: event.end,
+        priority: event.priority,
+        description: event.description,
+        is_ai_generated: event.isAiGenerated,
+        user_id: event.userId
+      };
+
       const { data, error } = await supabase
         .from('events')
-        .upsert(event)
+        .upsert(dbData)
         .select()
         .single();
       if (error) throw error;
-      return data;
+      
+      return {
+        ...data,
+        isAiGenerated: data.is_ai_generated,
+        userId: data.user_id
+      };
     } catch (err) {
       console.warn('Supabase save failed, falling back to localStorage', err);
     }

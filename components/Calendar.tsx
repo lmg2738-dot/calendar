@@ -62,7 +62,7 @@ export default function Calendar({ events, onSelectDate, onSelectEvent }: Calend
             onClick={() => setCurrentMonth(new Date())}
             className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
           >
-            Today
+            오늘
           </button>
           <div className="flex items-center gap-1">
             <button onClick={prevMonth} className="w-10 h-10 flex items-center justify-center border border-slate-200 hover:bg-slate-50 rounded-xl transition-all text-slate-600">
@@ -77,7 +77,7 @@ export default function Calendar({ events, onSelectDate, onSelectEvent }: Calend
 
       {/* Weekdays */}
       <div className="calendar-grid bg-slate-50 border-y border-slate-200">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+        {['일', '월', '화', '수', '목', '금', '토'].map(day => (
           <div key={day} className="py-3 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
             {day}
           </div>
